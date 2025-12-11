@@ -14,6 +14,7 @@ import {
   Output,
   Renderer2,
 } from '@angular/core';
+import { DndDropzoneDirective } from 'lib/dnd-dropzone.directive';
 import { DndHandleDirective } from './dnd-handle.directive';
 import { dndState, endDrag, startDrag } from './dnd-state';
 import { EffectAllowed } from './dnd-types';
@@ -71,6 +72,7 @@ export class DndDraggableDirective implements AfterViewInit, OnDestroy {
   private elementRef: ElementRef<HTMLElement> = inject(ElementRef);
   private renderer = inject(Renderer2);
   private ngZone = inject(NgZone);
+  private dropZone = inject(DndDropzoneDirective);
 
   @Input() set dndDisableIf(value: boolean) {
     this.draggable = !value;
@@ -122,8 +124,17 @@ export class DndDraggableDirective implements AfterViewInit, OnDestroy {
       return false;
     }
 
+    const fromList = this.dropZone?.dndDropzoneList;
+    const draggableHeight =
+      this.elementRef.nativeElement.getBoundingClientRect().height;
     // initialize global state
-    startDrag(event, this.dndEffectAllowed, this.dndType);
+    startDrag(
+      event,
+      this.dndEffectAllowed,
+      this.dndType,
+      fromList,
+      draggableHeight
+    );
 
     this.isDragStarted = true;
 

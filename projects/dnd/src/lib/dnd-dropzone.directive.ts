@@ -1,3 +1,4 @@
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   AfterViewInit,
   ContentChild,
@@ -13,6 +14,7 @@ import {
   Renderer2,
 } from '@angular/core';
 import {
+  dndState,
   getDndType,
   getDropEffect,
   isExternalDrag,
@@ -27,28 +29,40 @@ import {
   shouldPositionPlaceholderBeforeElement,
 } from './dnd-utils';
 
-export interface DndDropEvent {
+export interface DndDropEvent<T = any> {
   event: DragEvent;
   dropEffect: DropEffect;
   isExternal: boolean;
   data?: any;
   index?: number;
   type?: any;
+  fromList?: T[];
+  toList: T[];
 }
 
 @Directive({ selector: '[dndPlaceholderRef]', standalone: true })
 export class DndPlaceholderRefDirective implements OnInit {
+  @Input({ transform: coerceBooleanProperty })
+  autoHeight = false;
+
   constructor(public readonly elementRef: ElementRef<HTMLElement>) {}
 
   ngOnInit() {
     // placeholder has to be "invisible" to the cursor, or it would interfere with the dragover detection for the same dropzone
     this.elementRef.nativeElement.style.pointerEvents = 'none';
   }
+
+  setHeight(height: number) {
+    this.elementRef.nativeElement.style.height = `${height}px`;
+    this.elementRef.nativeElement.style.minHeight = `${height}px`;
+  }
 }
 
 @Directive({ selector: '[dndDropzone]', standalone: true })
 export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
   @Input() dndDropzone?: string[] | '' = '';
+
+  @Input() dndDropzoneList: any[] = [];
 
   @Input() dndEffectAllowed: EffectAllowed = 'uninitialized';
 
@@ -65,6 +79,9 @@ export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
 
   @Output() readonly dndDrop: EventEmitter<DndDropEvent> =
     new EventEmitter<DndDropEvent>();
+
+  @Output() readonly dndDragleave: EventEmitter<DndEvent> =
+    new EventEmitter<DndEvent>();
 
   @ContentChild(DndPlaceholderRefDirective)
   private readonly dndPlaceholderRef?: DndPlaceholderRefDirective;
@@ -198,6 +215,13 @@ export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
       this.elementRef.nativeElement,
       this.dndDragoverClass
     );
+
+    if (
+      this.dndPlaceholderRef?.autoHeight &&
+      dndState.draggableHeight !== undefined
+    ) {
+      this.dndPlaceholderRef?.setHeight(dndState.draggableHeight);
+    }
   }
 
   @HostListener('drop', ['$event']) onDrop(event: DragEvent) {
@@ -241,6 +265,8 @@ export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
         data: data.data,
         index: dropIndex,
         type: type,
+        fromList: dndState.fromList,
+        toList: this.dndDropzoneList,
       });
 
       event.stopPropagation();
@@ -262,6 +288,8 @@ export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
     }
 
     this.cleanupDragoverState();
+
+    this.dndDragleave.emit(event);
 
     // cleanup drop effect when leaving dropzone
     setDropEffect(event, 'none');
@@ -386,7 +414,10 @@ export class DndDropzoneDirective implements AfterViewInit, OnDestroy {
 
     const element = this.elementRef.nativeElement as HTMLElement;
 
-    return Array.prototype.indexOf.call(element.children, this.placeholder);
+    const withoutSource = Array.from(element.children).filter(
+      element => !element.classList.contains('dndDraggingSource')
+    );
+    return Array.prototype.indexOf.call(withoutSource, this.placeholder);
   }
 
   private cleanupDragoverState() {

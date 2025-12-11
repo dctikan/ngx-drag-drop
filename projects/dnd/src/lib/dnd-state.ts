@@ -13,6 +13,8 @@ export interface DndState {
   dropEffect?: DropEffect;
   effectAllowed?: EffectAllowed;
   type?: string;
+  fromList?: any[];
+  draggableHeight?: number;
 }
 
 const _dndState: DndState = {
@@ -20,17 +22,23 @@ const _dndState: DndState = {
   dropEffect: 'none',
   effectAllowed: 'all',
   type: undefined,
+  fromList: undefined,
+  draggableHeight: undefined,
 };
 
 export function startDrag(
   event: DragEvent,
   effectAllowed: EffectAllowed,
-  type: string | undefined
+  type: string | undefined,
+  fromList?: any[],
+  draggableHeight?: number
 ) {
   _dndState.isDragging = true;
   _dndState.dropEffect = 'none';
   _dndState.effectAllowed = effectAllowed;
   _dndState.type = type;
+  _dndState.fromList = fromList;
+  _dndState.draggableHeight = draggableHeight;
 
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = effectAllowed;
@@ -42,6 +50,8 @@ export function endDrag() {
   _dndState.dropEffect = undefined;
   _dndState.effectAllowed = undefined;
   _dndState.type = undefined;
+  _dndState.fromList = undefined;
+  _dndState.draggableHeight = undefined;
 }
 
 export function setDropEffect(event: DragEvent, dropEffect: DropEffect) {
