@@ -14,7 +14,7 @@ import {
   Output,
   Renderer2,
 } from '@angular/core';
-import { DndDropzoneDirective } from 'lib/dnd-dropzone.directive';
+import { DndDropzoneDirective } from './dnd-dropzone.directive';
 import { DndHandleDirective } from './dnd-handle.directive';
 import { dndState, endDrag, startDrag } from './dnd-state';
 import { EffectAllowed } from './dnd-types';
