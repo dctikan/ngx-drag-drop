@@ -1,20 +1,24 @@
 {
-  "name": "ngx-drag-drop",
+  "name": "ngx-drag-drop-fork-1",
   "version": "18.0.2",
   "description": "Angular directives using the native HTML Drag And Drop API",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reppners/ngx-drag-drop.git"
+    "url": "https://github.com/dctikan/ngx-drag-drop.git"
   },
-  "homepage": "https://reppners.github.io/ngx-drag-drop/",
+  "homepage": "https://github.com/dctikan/ngx-drag-drop.git",
   "author": {
-    "name": "Stefan Steinhart",
-    "email": "stefanreppner@googlemail.com"
+    "name": "dctikan",
+    "email": "nsaisbad2102+npm@gmail.com"
   },
   "contributors": [
     {
       "name": "Christof Fritz",
       "email": "npm@christof.me"
+    },
+    {
+      "name": "Stefan Steinhart",
+      "email": "stefanreppner@googlemail.com"
     }
   ],
   "license": "BSD-3-Clause",
